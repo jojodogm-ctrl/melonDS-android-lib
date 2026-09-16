@@ -1076,7 +1076,7 @@ void SPU::InitOutput()
     u32 newBufferSize = 512;
     while (newBufferSize < needSamples)
         newBufferSize <<= 1;
-    newBufferSize <<= 1;
+    newBufferSize <<= 2;
 
     if (newBufferSize != OutputBufferSize)
     {
