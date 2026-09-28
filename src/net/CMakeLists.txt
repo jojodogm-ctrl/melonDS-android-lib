@@ -14,6 +14,7 @@ set(NET_UTILS_SOURCES
     Net_Slirp.cpp
     PacketDispatcher.cpp
     LocalMP.cpp
+    DetMP.cpp
     MPInterface.cpp
 )
 

@@ -211,16 +211,37 @@ void ARMJIT_Memory::SigsegvHandler(int sig, siginfo_t* info, void* rawContext)
 
     ucontext_t* context = (ucontext_t*)rawContext;
 
-    FaultDescription desc {};
-    u8* curArea = (u8*)(NDS::Current->CurCPU == 0 ? NDS::Current->JIT.Memory.FastMem9Start : NDS::Current->JIT.Memory.FastMem7Start);
-
-    desc.EmulatedFaultAddr = (u8*)info->si_addr - curArea;
-    desc.FaultPC = (u8*)context->CONTEXT_PC;
-
-    if (FaultHandler(desc, *NDS::Current))
+    // This handler is process wide, so it also catches faults that have
+    // nothing to do with us. Other JITs raise them on purpose: pcre2, which Qt
+    // uses for regular expressions, grows its JIT stack that way, and on macOS
+    // that happens on the UI thread while the native menu bar is rebuilt.
+    //
+    // NDS::Current is only set on a thread that is emulating, so on any other
+    // thread it is null and reading through it faulted inside the handler
+    // itself, re-entering it, faulting again, for ever. The UI thread wedged
+    // solid the first time a window was clicked with more than one instance
+    // open. Anything that is not ours is handed straight to whoever installed
+    // a handler before us.
+    melonDS::NDS* nds = NDS::Current;
+    if (nds)
     {
-        context->CONTEXT_PC = (u64)desc.FaultPC;
-        return;
+        u8* curArea = (u8*)(nds->CurCPU == 0 ? nds->JIT.Memory.FastMem9Start : nds->JIT.Memory.FastMem7Start);
+        u8* faultAddr = (u8*)info->si_addr;
+
+        // and even on an emulating thread, only faults landing inside that
+        // console's fast memory window can be ours to fix
+        if (curArea && faultAddr >= curArea && (u64)(faultAddr - curArea) < AddrSpaceSize)
+        {
+            FaultDescription desc {};
+            desc.EmulatedFaultAddr = faultAddr - curArea;
+            desc.FaultPC = (u8*)context->CONTEXT_PC;
+
+            if (FaultHandler(desc, *nds))
+            {
+                context->CONTEXT_PC = (u64)desc.FaultPC;
+                return;
+            }
+        }
     }
 
     struct sigaction* oldSa;

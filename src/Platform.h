@@ -296,6 +296,8 @@ void WriteDateTime(int year, int month, int day, int hour, int minute, int secon
 
 // local multiplayer comm interface
 // packet type: DS-style TX header (12 bytes) + original 802.11 frame
+/// Reports the console's emulated time to the multiplayer interface.
+void MP_Tick(void* userdata);
 void MP_Begin(void* userdata);
 void MP_End(void* userdata);
 int MP_SendPacket(u8* data, int len, u64 timestamp, void* userdata);

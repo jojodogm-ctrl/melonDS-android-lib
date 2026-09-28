@@ -32,6 +32,7 @@ enum MPInterfaceType
     MPInterface_Local,
     MPInterface_LAN,
     MPInterface_Netplay,
+    MPInterface_Deterministic,
 };
 
 struct MPPacketHeader
@@ -57,6 +58,15 @@ public:
 
     // function called every video frame
     virtual void Process() = 0;
+
+    // Emulated time of an instance, in system cycles. Only the deterministic
+    // interface cares: it is called before every exchange, at every wifi
+    // tick and at the end of every frame.
+    virtual void SetNow(int inst, u64 systime) {}
+    // the instance is going away for good, nobody should wait on it
+    virtual void Leave(int inst) {}
+    // the instance starts a shared session from here: time zero, empty air
+    virtual void ResetSession(int inst, u64 systime) {}
 
     virtual void Begin(int inst) = 0;
     virtual void End(int inst) = 0;

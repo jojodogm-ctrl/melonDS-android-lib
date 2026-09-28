@@ -727,7 +727,14 @@ bool NDS::DoSavestate(Savestate* file)
     {
         // 'dept of redundancy dept'
         // but we do need to update the mappings
-        MapSharedWRAM(WRAMCnt);
+        // Var8 above already stored the new value, and MapSharedWRAM returns
+        // early when handed the value it holds: the mapping stayed whatever
+        // the console had before loading. Harmless when reloading a state of
+        // the same run, fatal on a freshly reset console, whose ARM7 then
+        // executed from the wrong shared WRAM bank.
+        u8 wramcnt = WRAMCnt;
+        WRAMCnt = ~wramcnt;
+        MapSharedWRAM(wramcnt);
 
         InitTimings();
         SetGBASlotTimings();

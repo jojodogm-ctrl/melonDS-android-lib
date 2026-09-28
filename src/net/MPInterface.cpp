@@ -21,6 +21,7 @@
 #ifndef MELONDS_DISABLE_ENET
 #include "LAN.h"
 #endif
+#include "DetMP.h"
 
 namespace melonDS
 {
@@ -53,6 +54,10 @@ void MPInterface::Set(MPInterfaceType type)
     {
     case MPInterface_Local:
         Current = std::make_unique<LocalMP>();
+        break;
+
+    case MPInterface_Deterministic:
+        Current = std::make_unique<DetMP>();
         break;
 
     case MPInterface_LAN:

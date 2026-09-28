@@ -557,6 +557,8 @@ public:
     NDS& operator=(NDS&&) = delete;
 
     static thread_local NDS* Current;
+
+    u64 GetSysTimestamp() const noexcept { return SysTimestamp; }
 protected:
     explicit NDS(NDSArgs&& args, int type, void* userdata) noexcept;
     virtual u32 GetSavestateConfig();

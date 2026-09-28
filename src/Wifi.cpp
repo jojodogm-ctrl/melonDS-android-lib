@@ -1753,6 +1753,7 @@ void Wifi::MSTimer()
 void Wifi::USTimer(u32 param)
 {
     USTimestamp += kTimerInterval;
+    Platform::MP_Tick(NDS.UserData);
 
     if (IsMPClient && (!ComStatus))
     {
