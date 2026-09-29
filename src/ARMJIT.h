@@ -85,6 +85,7 @@ public:
     bool LiteralOptimizationsEnabled() const noexcept { return LiteralOptimizations; }
     bool BranchOptimizationsEnabled() const noexcept { return BranchOptimizations; }
     bool FastMemoryEnabled() const noexcept { return FastMemory; }
+    bool HgEngineFixEnabled() const noexcept { return HgEngineFix; }
     bool ShouldFoldLiteralPoolAddress(u32 cpuNum, u32 literalAddr) const noexcept;
 
     void SetJITArgs(JITArgs args) noexcept;
